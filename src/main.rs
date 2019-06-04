@@ -45,7 +45,7 @@ fn main() {
     if !local {
         Arbiter::spawn_fn(|| {
             eprintln!("Starting registration");
-            gu_plugin_api::register_server("http://127.0.0.1:33433/", "gu-blender-mediator")
+            gu_plugin_api::register_service("http://127.0.0.1:33433/", "gu-blender-mediator")
         })
     } else {
         eprintln!("registration skipped");
