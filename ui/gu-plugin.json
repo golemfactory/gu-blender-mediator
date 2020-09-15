@@ -1,0 +1,19 @@
+{
+  "id": "c22b87d4-4c97-11e9-88ee-0f230ce0986e",
+  "name": "BrassBlender",
+  "version": "0.1.0",
+  "author": "Golem Factory",
+  "gu-version-req": "*",
+  "load": [
+    "app.js",
+    "gnt.js"
+  ],
+  "required-services": [
+    {
+      "gu-service": {
+        "cmd": "gu-blender-mediator"
+      }
+    }
+  ]
+}
+

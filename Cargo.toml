@@ -5,15 +5,14 @@ authors = [ "Przemysław K. Rekucki <przemyslaw.rekucki@golem.network>" ]
 edition = "2018"
 
 [dependencies]
-gu-client = { git = "https://github.com/golemfactory/golem-unlimited.git", branch = "release/0.2" }
+gu-actix = { git="https://github.com/golemfactory/golem-unlimited.git", branch="feature/js-refactor" }
+gu-client = { git="https://github.com/golemfactory/golem-unlimited.git", branch="feature/js-refactor" }
+gu-plugin-api = { git="https://github.com/golemfactory/golem-unlimited.git", branch="feature/js-refactor" }
 golem_gw_api = { git = "https://github.com/prekucki/golem-gw-client.git" }
-#golem_gw_api = { path = "../golem-gw-client" }
 structopt = { version = "0.2.14" }
 actix = "0.7"
 futures = "0.1"
-actix-web = { version = "0.7" }
-hyper = "0.12"
-failure = "0.1.5"
+failure = "0.1"
 serde_json = "1.0"
 serde = "1.0"
 serde_derive = "1.0"
@@ -23,6 +22,14 @@ bytes = "0.4.10"
 regex = "1.1.2"
 env_logger ="0.6.1"
 log = "0.4.6"
+hyper = "0.12"
+diesel = { version = "1.0.0", features = ["sqlite"], default-features=false }
+
+[dependencies.actix-web]
+version = "1.0.0-alpha.3"
+default-features = false
+features = ["rust-tls", "client"]
+
 
 [build-dependencies]
 structopt = { version = "0.2.14"}
@@ -31,4 +38,4 @@ structopt = { version = "0.2.14"}
 [profile.release]
 lto = true
 opt-level = "z"
-panic = "abort"
+#panic = "abort"

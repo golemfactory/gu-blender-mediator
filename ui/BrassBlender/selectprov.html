@@ -1,0 +1,18 @@
+<div class="panel panel-default" ng-controller="BrassBlenderSelectProv">
+    <div class="panel-heading">
+        <h4><i class="glyphicon glyphicon-cog"></i> Select nodes</h4>
+    </div>
+    <div class="panel-body">
+        <gu-select-provider ng-model="sessionPeers"></gu-select-provider>
+    </div>
+    <div class="panel-footer">
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn btn-primary pull-right" ng-click="goNext()" ng-disabled="sessionPeers.length === 0">
+                    Start
+                    <i class="glyphicon glyphicon-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

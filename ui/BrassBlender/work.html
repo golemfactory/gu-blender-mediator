@@ -1,0 +1,83 @@
+<div class="panel panel-default" ng-controller="BrassBlenderWork">
+    <div class="panel-heading">
+        <h4><i class="glyphicon glyphicon-cog"></i> Work</h4>
+    </div>
+    <div class="panel-body">
+
+        <div ng-if="!working" class="row">
+            <div class="col-md-12">
+            Session not working
+
+                <div style="margin: 8px"><a href="#" class="btn btn-primary" ng-click="restartSession()">Restart</a></div>
+
+            </div>
+        </div>
+        <div ng-if="working" class="row">
+            <div class="col-md-3">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Tasks:</div>
+                <div class="panel-body"><h2>{{sessionStats.tasks}}</h2></div>
+            </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Subtasks:</div>
+                    <div class="panel-body"><h2>{{sessionStats.subtasks}}</h2></div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Done:</div>
+                    <div class="panel-body"><h2>{{sessionStats.subtasksDone}}</h2></div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-danger">
+                    <div class="panel-heading">Fails:</div>
+                    <div class="panel-body"><h2>{{sessionStats.fails}}</h2></div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Account: {{sessionConfig.account}}</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div>GNT</div>
+                                <div>{{gntInfo.gnt}}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div>GNTB</div>
+                                <div>{{gntInfo.gntb}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Config</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div>Gateway</div>
+                                <div>{{sessionConfig.gwUrl}}</div>
+                                <div>{{sessionConfig.davUrl}}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div></div>
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <gu-list-provider ng-model="sessionPeers"></gu-list-provider>
+    </div>
+</div>

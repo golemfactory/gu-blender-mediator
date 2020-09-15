@@ -1,0 +1,77 @@
+<div ng-controller="BrassBlenderBase" class="panel panel-default">
+    <div class="panel-heading">
+        <h4><i class="glyphicon glyphicon-cog"></i> Configuration</h4>
+    </div>
+    <div class="panel-body">
+        <form name="fc">
+            <div class="form-group col-md-4" ng-class="{'has-error': fc.gwUrl.$invalid}">
+                <label>Brass gateway URL</label>
+                <div class="input-group col-md-12">
+                    <input type="url" class="form-control" placeholder="Enter url" ng-model="config.gwUrl" name="gwUrl"
+                           required>
+                    <small class="form-text text-muted"></small>
+                </div>
+            </div>
+            <div class="form-group col-md-4" ng-class="{'has-error': fc.davUrl.$invalid}">
+                <label>Brass Gateway Storage</label>
+                <div class="input-group col-md-12">
+                    <input type="url" class="form-control" ng-model="config.davUrl" name="davUrl">
+                </div>
+            </div>
+            <div class="form-group col-md-4">
+                <label class="form-label">Docker Mode</label>
+                <div class="input-group col-md-12">
+                    <div class="toggle btn btn-xs btn-primary" ng-class="{off: !dockerMode}" ng-click="toggleMode()">
+                        <input type="checkbox" checked="" data-toggle="toggle">
+                        <div class="toggle-group" ng-click="toggle(peer, 'gu:mining:monero', 'gpu')">
+                            <label class="btn btn-xs btn-primary toggle-on">On</label>
+                            <label class="btn btn-xs btn-default toggle-off">Off</label>
+                            <span class="toggle-handle btn btn-xs btn-default"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-md-6" ng-class="{'has-error': fc.account.$invalid}">
+                <label class="control-label">Etherium address <span class="label label-default">{{net}}</span></label>
+                <div class="input-group col-md-12">
+                    <input type="text" class="form-control" ng-model="config.account" name="account" eth-address
+                           required>
+                    <div class="input-group-btn" uib-dropdown ng-if="isConnected()">
+                        <button tabindex="-1" class="btn btn-default" type="button" uib-dropdown-toggle>
+                            <span class="caret"></span>
+                            Select
+                        </button>
+                        <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="btn-append-to-body">
+                            <li ng-repeat="account in accounts()"><a href="#" ng-click="selectAccount(account)">{{account}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-md-3" ng-if="isConnected()">
+                <label>GNT:</label>
+                <div class="input-group col-md-12">
+                    <div>{{gntInfo.gnt}}</div>
+                </div>
+            </div>
+            <div class="form-group col-md-3" ng-if="isConnected()">
+                <label>GNTB</label>
+                <div class="input-group col-md-12">
+                    <div>{{gntInfo.gntb}}</div>
+                </div>
+            </div>
+
+
+        </form>
+    </div>
+    <div class="panel-footer">
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn btn-primary pull-right" ng-click="goNext()" ng-disabled="fc.$invalid">
+                    Create Session
+                    <i class="glyphicon glyphicon-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

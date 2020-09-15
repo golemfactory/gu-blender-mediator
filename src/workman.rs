@@ -76,6 +76,22 @@ impl Message for GiveMeNode {
     type Result = Result<NodeId, NoFreeNode>;
 }
 
+struct GiveMeSessionNode {
+    session_id: u64,
+    task_id: String,
+    deadline: u64,
+}
+
+impl Message for GiveMeSessionNode {
+    type Result = Result<NodeId, NoFreeNode>;
+}
+
+struct FreeNode(NodeId);
+
+impl Message for FreeNode {
+    type Result = ();
+}
+
 impl Handler<GiveMeNode> for WorkMan {
     type Result = ActorResponse<Self, NodeId, NoFreeNode>;
 
@@ -106,6 +122,76 @@ impl Handler<GiveMeNode> for WorkMan {
     }
 }
 
+impl Handler<GiveMeSessionNode> for WorkMan {
+    type Result = ActorResponse<Self, NodeId, NoFreeNode>;
+
+    fn handle(&mut self, msg: GiveMeSessionNode, _ctx: &mut Self::Context) -> Self::Result {
+        ActorResponse::r#async(
+            self.connection
+                .hub_session(msg.session_id)
+                .list_peers()
+                .into_actor(self)
+                .map_err(|_, _act, _ctx| NoFreeNode)
+                .and_then(move |peers, act, _ctx| {
+                    let c: Vec<NodeId> = peers
+                        .map(|p| p.node_id)
+                        .filter(|&p| act.is_free_to_use(p))
+                        .collect();
+
+                    use rand::seq::SliceRandom;
+                    let mut rng = thread_rng();
+
+                    if let Some(&it) = c.choose(&mut rng) {
+                        act.reservations
+                            .insert(it.clone(), Reservation::new(msg.task_id, msg.deadline));
+                        fut::ok(it)
+                    } else {
+                        fut::err(NoFreeNode)
+                    }
+                }),
+        )
+    }
+}
+
+impl Handler<FreeNode> for WorkMan {
+    type Result = ();
+
+    fn handle(&mut self, msg: FreeNode, ctx: &mut Self::Context) -> Self::Result {
+        self.reservations.remove(&msg.0);
+    }
+}
+
+pub fn reserve_for_session(
+    session_id: u64,
+    task_id: &str,
+    deadline: u64,
+) -> impl Future<Item = NodeId, Error = NoFreeNode> {
+    let task = task_id.to_owned();
+    WorkMan::from_registry()
+        .send(GiveMeSessionNode {
+            session_id,
+            task_id: task.clone(),
+            deadline,
+        })
+        .then(move |r| match r {
+            Ok(Ok(node_id)) => {
+                log::info!(
+                    "reserved peer {:?} for subtask {:?} until {:?}",
+                    node_id,
+                    task,
+                    deadline
+                );
+
+                Ok(node_id)
+            }
+            Err(e) => {
+                log::error!("reservation error: {}", e);
+                Err(NoFreeNode)
+            }
+            Ok(Err(_)) => Err(NoFreeNode),
+        })
+}
+
 pub fn reserve(task_id: &str, deadline: u64) -> impl Future<Item = NodeId, Error = NoFreeNode> {
     let task = task_id.to_owned();
     WorkMan::from_registry()
@@ -117,7 +203,9 @@ pub fn reserve(task_id: &str, deadline: u64) -> impl Future<Item = NodeId, Error
             Ok(Ok(node_id)) => {
                 log::info!(
                     "reserved peer {:?} for subtask {:?} until {:?}",
-                    node_id, task, deadline
+                    node_id,
+                    task,
+                    deadline
                 );
 
                 Ok(node_id)
@@ -128,4 +216,8 @@ pub fn reserve(task_id: &str, deadline: u64) -> impl Future<Item = NodeId, Error
             }
             Ok(Err(_)) => Err(NoFreeNode),
         })
+}
+
+pub fn release(task_id: &str, node_id: NodeId) {
+    WorkMan::from_registry().do_send(FreeNode(node_id))
 }

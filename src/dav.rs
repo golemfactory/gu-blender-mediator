@@ -19,9 +19,9 @@ pub enum Error {
     #[fail(display = "http status {}", _0)]
     HttpStatus { status: u16, uri: String },
     #[fail(display = "{}", _0)]
-    SendRequest(client::SendRequestError),
+    SendRequest(String),
     #[fail(display = "{}", _0)]
-    HttpError(actix_web::Error),
+    HttpError(String),
 }
 
 macro_rules! err_convert {
@@ -34,8 +34,19 @@ macro_rules! err_convert {
     };
 }
 
-err_convert!(SendRequest(client::SendRequestError));
-err_convert!(HttpError(actix_web::Error));
+//err_convert!(SendRequest());
+
+impl From<actix_web::Error> for Error {
+    fn from(e: actix_web::Error) -> Self {
+        Error::HttpError(format!("{}", e))
+    }
+}
+
+impl From<client::SendRequestError> for Error {
+    fn from(e: client::SendRequestError) -> Self {
+        Error::SendRequest(format!("{}", e))
+    }
+}
 
 impl DavPath {
     pub fn new(uri: Uri) -> DavPath {
@@ -55,13 +66,11 @@ impl DavPath {
             format!("{}/{}", self.uri, dir_name)
         };
 
-        client::ClientRequest::build()
-            .method(MKCOL.clone())
-            .uri(&new_uri)
-            .finish()
+        client::Client::default()
+            .request(MKCOL.clone(), &new_uri)
+            .send()
             .into_future()
             .from_err()
-            .and_then(|r| r.send().from_err())
             .and_then(move |r| match r.status() {
                 http::StatusCode::CREATED => Ok(DavPath { uri: new_uri }),
                 status => Err(Error::HttpStatus {
